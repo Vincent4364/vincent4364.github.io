@@ -37,7 +37,7 @@ def submit():
             print(f"  Column Name: {column[1]}")
 
         logging.info(f"Received reaction time: {time} ms")  # Debug print
-        cur.execute("INSERT INTO user_times (time) VALUES (?)", (time,))
+        cur.execute("INSERT INTO user_times_table (times) VALUES (?)", (time,))
         last_time = cur.lastrowid
         logging.info(last_time)
         con.commit()
