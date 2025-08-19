@@ -31,8 +31,13 @@ def submit():
     cur = con.cursor()
     time = int(request.form.get('time'))
     if time:
+        cur.execute("PRAGMA table_info(user_times_table)")
+        schema_info = cur.fetchall()
+        for column in schema_info:
+            print(f"  Column Name: {column[1]}")
+
         logging.info(f"Received reaction time: {time} ms")  # Debug print
-        cur.execute("INSERT INTO user_times_table (time) VALUES (time)")
+        cur.execute("INSERT INTO user_times (time) VALUES (?)", (time,))
         last_time = cur.lastrowid
         logging.info(last_time)
         con.commit()
