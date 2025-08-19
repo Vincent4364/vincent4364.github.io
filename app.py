@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request
 import sqlite3
 from sqlite3 import Error
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdout)])
 
 app = Flask(__name__)
 DATABASE = 'user_times'
@@ -11,7 +15,7 @@ def connect_to_database(db_file):
     """
     try:
         con = sqlite3.connect(db_file)
-        print(f"{db_file} connected")
+        logging.info(f"{db_file} connected")
         return con
     except Error as e:
         print(f"Error! Cannot connect to database '{db_file}': {e}")
@@ -27,7 +31,7 @@ def submit():
     cur = con.cursor()
     time = int(request.form.get('time'))
     if time:
-        print(f"Received reaction time: {time} ms")  # Debug print
+        logging.info(f"Received reaction time: {time} ms")  # Debug print
         cur.execute("INSERT INTO user_times_table (time) VALUES (?)", (time,))
         con.commit()
         con.close()
