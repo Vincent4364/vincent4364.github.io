@@ -32,7 +32,9 @@ def submit():
     time = int(request.form.get('time'))
     if time:
         logging.info(f"Received reaction time: {time} ms")  # Debug print
-        cur.execute("INSERT INTO user_times_table (time) VALUES (?)", (time,))
+        cur.execute("INSERT INTO user_times_table (time) VALUES (time)")
+        last_time = cur.lastrowid
+        logging.info(last_time)
         con.commit()
         con.close()
         return "OK", 200
