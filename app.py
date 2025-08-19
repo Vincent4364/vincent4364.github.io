@@ -50,21 +50,6 @@ def submit():
         con = get_connection()
         cur = con.cursor()
 
-        # Ensure the table exists (you can run this once at startup instead)
-        cur.execute("""
-                    CREATE TABLE IF NOT EXISTS user_times_table
-                    (
-                        id
-                        SERIAL
-                        PRIMARY
-                        KEY,
-                        times
-                        INTEGER
-                        NOT
-                        NULL
-                    )
-                    """)
-
         cur.execute("INSERT INTO user_times_table (times) VALUES (%s)", (time,))
         con.commit()
 
@@ -77,3 +62,25 @@ def submit():
     except Exception as e:
         logging.error(f"Database insert failed: {e}")
         return "Database error", 500
+
+
+def init_db():
+    try:
+        con = get_connection()
+        cur = con.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS user_times_table (
+                id SERIAL PRIMARY KEY,
+                times INTEGER NOT NULL
+            )
+        """)
+        con.commit()
+        cur.close()
+        con.close()
+        logging.info("Database initialized ✅")
+    except Exception as e:
+        logging.error(f"DB init failed: {e}")
+
+if __name__ == '__main__':
+    init_db()
+    app.run(host='0.0.0.0', port=5000)
