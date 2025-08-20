@@ -63,23 +63,33 @@ def submit():
         logging.error(f"Database insert failed: {e}")
         return "Database error", 500
 
+@app.route('/data')
+def data():
+    try:
+        with get_connection() as con:
+            with con.cursor() as cur:
+                cur.execute("SELECT id, times FROM user_times_table ORDER BY id DESC LIMIT 20")
+                rows = cur.fetchall()
+        return {"rows": [{"id": r[0], "times": r[1]} for r in rows]}
+    except Exception as e:
+        logging.error(e)
+        return {"rows": []}, 500
 
 def init_db():
     try:
-        con = get_connection()
-        cur = con.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS user_times_table (
-                id SERIAL PRIMARY KEY,
-                times INTEGER NOT NULL
-            )
-        """)
-        con.commit()
-        cur.close()
-        con.close()
+        with get_connection() as con:
+            with con.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS user_times_table (
+                        id SERIAL PRIMARY KEY,
+                        times INTEGER NOT NULL
+                    )
+                """)
+                con.commit()
         logging.info("Database initialized ✅")
     except Exception as e:
         logging.error(f"DB init failed: {e}")
+
 
 if __name__ == '__main__':
     init_db()

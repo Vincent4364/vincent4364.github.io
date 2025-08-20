@@ -32,3 +32,23 @@
     </div>
 </body>
 </html>
+
+<script>
+function fetchData() {
+    fetch('/data')  // new Flask route returning JSON
+        .then(response => response.json())
+        .then(rows => {
+            let tableBody = document.querySelector("#times-table tbody");
+            tableBody.innerHTML = "";  // clear old rows
+            rows.forEach(row => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td>`;
+                tableBody.appendChild(tr);
+            });
+        });
+}
+
+// Fetch every 3 seconds
+setInterval(fetchData, 3000);
+fetchData(); // fetch immediately
+</script>
