@@ -23,7 +23,7 @@ def index():
     try:
         con = get_connection()
         cur = con.cursor()
-        cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times DESC LIMIT 20")
+        cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times ASC LIMIT 20")
         rows = cur.fetchall()
         cur.close()
         con.close()
@@ -68,7 +68,7 @@ def data():
     try:
         with get_connection() as con:
             with con.cursor() as cur:
-                cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times DESC LIMIT 20")
+                cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times ASC LIMIT 20")
                 rows = cur.fetchall()
         return {
             "rows": [
