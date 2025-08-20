@@ -9,46 +9,58 @@
     <div class="container">
         <h1 class="mb-4">Logged Reaction Times</h1>
 
-        {% if rows %}
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Time (ms)</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <!-- Always render the table so JS can update it -->
+        <table class="table table-striped table-bordered" id="times-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Time (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if rows %}
                     {% for row in rows %}
                         <tr>
                             <td>{{ row[0] }}</td>
                             <td>{{ row[1] }}</td>
                         </tr>
                     {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No reaction times logged yet.</p>
+                {% endif %}
+            </tbody>
+        </table>
+
+        {% if not rows %}
+            <p id="no-data">No reaction times logged yet.</p>
         {% endif %}
     </div>
-</body>
-</html>
 
-<script>
-function fetchData() {
-    fetch('/data')  // new Flask route returning JSON
+    <script>
+    function fetchData() {
+    fetch('/data')
         .then(response => response.json())
-        .then(rows => {
-            let tableBody = document.querySelector("#times-table tbody");
+        .then(data => {
+            const tableBody = document.querySelector("#times-table tbody");
             tableBody.innerHTML = "";  // clear old rows
-            rows.forEach(row => {
-                let tr = document.createElement("tr");
-                tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td>`;
-                tableBody.appendChild(tr);
-            });
-        });
+
+            const noDataEl = document.getElementById("no-data");
+
+            if (data.rows.length === 0) {
+                if (noDataEl) noDataEl.style.display = "block";
+            } else {
+                if (noDataEl) noDataEl.style.display = "none";
+                data.rows.forEach(row => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td>`;
+                    tableBody.appendChild(tr);
+                });
+            }
+        })
+        .catch(err => console.error("Error fetching data:", err));
 }
 
-// Fetch every 3 seconds
-setInterval(fetchData, 3000);
-fetchData(); // fetch immediately
-</script>
+    // Fetch every 3 seconds
+    setInterval(fetchData, 3000);
+    fetchData(); // initial fetch
+    </script>
+</body>
+</html>
