@@ -15,6 +15,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Time (ms)</th>
+                    <th>Timestamp</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,6 +24,7 @@
                         <tr>
                             <td>{{ row[0] }}</td>
                             <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
                         </tr>
                     {% endfor %}
                 {% endif %}
@@ -51,6 +53,7 @@
                 data.rows.forEach(row => {
                     const tr = document.createElement("tr");
                     tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td>`;
+                    tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td><td>${row.created_at}</td>`;
                     tableBody.appendChild(tr);
                 });
             }

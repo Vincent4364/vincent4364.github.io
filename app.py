@@ -23,7 +23,7 @@ def index():
     try:
         con = get_connection()
         cur = con.cursor()
-        cur.execute("SELECT id, times FROM user_times_table ORDER BY id DESC LIMIT 20")  # latest 20 entries
+        cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times DESC LIMIT 20")
         rows = cur.fetchall()
         cur.close()
         con.close()
@@ -68,9 +68,14 @@ def data():
     try:
         with get_connection() as con:
             with con.cursor() as cur:
-                cur.execute("SELECT id, times FROM user_times_table ORDER BY id DESC LIMIT 20")
+                cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times DESC LIMIT 20")
                 rows = cur.fetchall()
-        return {"rows": [{"id": r[0], "times": r[1]} for r in rows]}
+        return {
+            "rows": [
+                {"id": r[0], "times": r[1], "created_at": r[2].strftime("%Y-%m-%d %H:%M:%S")}
+                for r in rows
+            ]
+        }
     except Exception as e:
         logging.error(e)
         return {"rows": []}, 500
@@ -82,14 +87,14 @@ def init_db():
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS user_times_table (
                         id SERIAL PRIMARY KEY,
-                        times INTEGER NOT NULL
+                        times INTEGER NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 """)
                 con.commit()
         logging.info("Database initialized ✅")
     except Exception as e:
         logging.error(f"DB init failed: {e}")
-
 
 if __name__ == '__main__':
     init_db()
