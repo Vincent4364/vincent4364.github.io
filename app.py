@@ -66,16 +66,33 @@ def submit():
 @app.route('/data')
 def data():
     try:
+        limit = request.args.get("limit")  # e.g., /data?limit=20
+        show_all = request.args.get("all")  # e.g., /data?all=1
+
         with get_connection() as con:
             with con.cursor() as cur:
-                cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times ASC LIMIT 20")
+                if show_all:
+                    # All-time leaderboard
+                    cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times ASC")
+                elif limit:
+                    # Top N leaderboard (default: 20)
+                    cur.execute(
+                        "SELECT id, times, created_at FROM user_times_table ORDER BY times ASC LIMIT %s",
+                        (int(limit),)
+                    )
+                else:
+                    # Default to Top 20 if nothing specified
+                    cur.execute("SELECT id, times, created_at FROM user_times_table ORDER BY times ASC LIMIT 20")
+
                 rows = cur.fetchall()
+
         return {
             "rows": [
                 {"id": r[0], "times": r[1], "created_at": r[2].strftime("%Y-%m-%d %H:%M:%S")}
                 for r in rows
             ]
         }
+
     except Exception as e:
         logging.error(e)
         return {"rows": []}, 500

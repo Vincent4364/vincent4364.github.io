@@ -7,9 +7,12 @@
 </head>
 <body class="p-4">
     <div class="container">
-        <h1 class="mb-4">Logged Reaction Times</h1>
+        <h1 class="mb-4">Reaction Times Leaderboard</h1>
 
-        <!-- Always render the table so JS can update it -->
+        <!-- Toggle Button -->
+        <button id="toggle-btn" class="btn btn-primary mb-3">Show Top 20</button>
+
+        <!-- Table -->
         <table class="table table-striped table-bordered" id="times-table">
             <thead>
                 <tr>
@@ -37,29 +40,39 @@
     </div>
 
     <script>
+    let showAll = true;  // start with all-time by default
+
     function fetchData() {
-    fetch('/data')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector("#times-table tbody");
-            tableBody.innerHTML = "";  // clear old rows
+        const endpoint = showAll ? "/data?all=1" : "/data?limit=20";
 
-            const noDataEl = document.getElementById("no-data");
+        fetch(endpoint)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector("#times-table tbody");
+                tableBody.innerHTML = "";  // clear old rows
 
-            if (data.rows.length === 0) {
-                if (noDataEl) noDataEl.style.display = "block";
-            } else {
-                if (noDataEl) noDataEl.style.display = "none";
-                data.rows.forEach(row => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td>`;
-                    tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td><td>${row.created_at}</td>`;
-                    tableBody.appendChild(tr);
-                });
-            }
-        })
-        .catch(err => console.error("Error fetching data:", err));
-}
+                const noDataEl = document.getElementById("no-data");
+
+                if (data.rows.length === 0) {
+                    if (noDataEl) noDataEl.style.display = "block";
+                } else {
+                    if (noDataEl) noDataEl.style.display = "none";
+                    data.rows.forEach(row => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `<td>${row.id}</td><td>${row.times}</td><td>${row.created_at}</td>`;
+                        tableBody.appendChild(tr);
+                    });
+                }
+            })
+            .catch(err => console.error("Error fetching data:", err));
+    }
+
+    // Toggle button click
+    document.getElementById("toggle-btn").addEventListener("click", () => {
+        showAll = !showAll;
+        document.getElementById("toggle-btn").textContent = showAll ? "Show Top 20" : "Show All-Time";
+        fetchData();
+    });
 
     // Fetch every 3 seconds
     setInterval(fetchData, 3000);
